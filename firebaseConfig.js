@@ -1,14 +1,26 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { getAuth, initializeAuth, inMemoryPersistence } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
+import { getDatabase } from 'firebase/database';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAvYbKzJNaKRNZtMtAFUEZAtzinnX3laIM",
-  authDomain: "cashback-web-app.firebaseapp.com",
-  projectId: "cashback-web-app",
-  storageBucket: "cashback-web-app.appspot.com",
-  messagingSenderId: "1043544354212",
-  appId: "1:1043544354212:web:a5bd8e2b574a1ce1cb2531"
+  apiKey: "AIzaSyD3aAVj4wNy2AljX52lC_-LbvqfTMIpML8",
+  authDomain: "cashbackapp-639c6.firebaseapp.com",
+  projectId: "cashbackapp-639c6",
+  storageBucket: "cashbackapp-639c6.appspot.com",
+  messagingSenderId: "1029177231754",
+  appId: "1:1029177231754:web:454910061df2cc9ec62073",
+  measurementId: "G-5YYL24NHH4"
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+
+const auth = initializeAuth(app, {
+  persistence: inMemoryPersistence,
+  dataConverter: null,
+});
+
+const db = getFirestore(app);
+const database = getDatabase(app);
+
+export { auth, db, database };
