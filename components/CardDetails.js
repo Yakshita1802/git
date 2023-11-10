@@ -1,22 +1,56 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, ScrollView, StyleSheet, Button, Alert } from 'react-native';
+import { ref, get } from 'firebase/database';
+import { database } from '../firebaseConfig'; // Import your Realtime Firebase configuration
+import { collection, doc, setDoc, getFirestore } from 'firebase/firestore';
 
-export default function CardDetails({ route }) {
+export default function CardDetail({ route }) {
   const { cardData } = route.params;
+  const [cardDetails, setCardDetails] = useState(null);
+
+  useEffect(() => {
+    const fetchCardDetails = async () => {
+      try {
+        const cardRef = ref(database, 'cards', cardData.id); 
+        const cardSnapshot = await get(cardRef);
+
+        if (cardSnapshot.exists()) {
+          const detailedCardData = cardSnapshot.val();
+          setCardDetails(detailedCardData);
+        } else {
+          console.log('Card not found in Realtime Database');
+        }
+      } catch (error) {
+        console.error('Error fetching detailed card data:', error);
+      }
+    };
+
+    fetchCardDetails();
+  }, [cardData.id]);
+
+  const handleSomeAction = async () => {
+    try {
+      const db = getFirestore();
+      const userRef = doc(db, 'users', 'someUserId'); // Adjust the path based on your Firestore structure
+      await setDoc(userRef, { someField: 'someValue' }, { merge: true });
+      Alert.alert('Success', 'Data updated successfully!');
+    } catch (error) {
+      console.error('Error updating data:', error);
+      Alert.alert('Error', 'Failed to update data.');
+    }
+  };
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <Text style={styles.title}>Card Details</Text>
-      <Text style={styles.cardName}>Card Name: {cardData['Card Name']}</Text>
-      <Text style={styles.issuer}>Issuer: {cardData.Issuer}</Text>
-      <Text style={styles.network}>Network: {cardData.Network}</Text>
-      <Text style={styles.lyft}>Lyft(%): {cardData['Lyft(%)']}</Text>
-      <Text style={styles.airTravel}>Air Travel(%): {cardData['Air Travel(%)']}</Text>
-      <Text style={styles.hotels}>Hotels(%): {cardData['Hotels(%)']}</Text>
-      <Text style={styles.dining}>Dining(%): {cardData['Dining(%)']}</Text>
-      <Text style={styles.drugstores}>Drugsrores(%): {cardData['Drugsrores(%)']}</Text>
-      <Text style={styles.everythingElse}>Everything Else(%): {cardData['Everything Else(%)']}</Text>
-    </View>
+      {cardDetails && (
+        <View>
+          <Text>{`Card Name: ${cardDetails.CardName}`}</Text>
+          {/* Display other card details here */}
+        </View>
+      )}
+      <Button title="Perform Some Action" onPress={handleSomeAction} />
+    </ScrollView>
   );
 }
 
@@ -29,42 +63,5 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginVertical: 10,
-    textAlign: 'center',
-  },
-  cardName: {
-    fontSize: 20,
-    marginVertical: 5,
-  },
-  issuer: {
-    fontSize: 18,
-    marginVertical: 5,
-  },
-  network: {
-    fontSize: 18,
-    marginVertical: 5,
-  },
-  lyft: {
-    fontSize: 18,
-    marginVertical: 5,
-  },
-  airTravel: {
-    fontSize: 18,
-    marginVertical: 5,
-  },
-  hotels: {
-    fontSize: 18,
-    marginVertical: 5,
-  },
-  dining: {
-    fontSize: 18,
-    marginVertical: 5,
-  },
-  drugstores: {
-    fontSize: 18,
-    marginVertical: 5,
-  },
-  everythingElse: {
-    fontSize: 18,
-    marginVertical: 5,
   },
 });
